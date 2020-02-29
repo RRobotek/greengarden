@@ -1,0 +1,169 @@
+<!--
+    freegarden web UI by Fedor
+
+    Comments:
+
+    * include shit like this:
+
+        <script>
+            let d = new Date();
+            alert("Today's date is " + d);
+        </script>
+-->
+
+<!DOCTYPE HTML>
+
+<head>
+        <!-- web bootstrap stylesheet-->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>freegarden web UI</title>
+
+    <style>
+        .vb {
+            
+        }
+    </style>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <!-- this script draws temperature graph -->
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart()
+      {
+        var data = google.visualization.arrayToDataTable(
+        [
+          %s
+        ]
+        );
+
+        var options = {
+          title: 'Temperature Curve',
+          curveType: 'function',
+          legend: { position: 'bottom' },
+          colors: ['#e0440e']
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('temperature_curve'));
+
+        chart.draw(data, options);
+      }
+    </script>
+
+<!-- this script draws humidity graph -->
+<script type="text/javascript">
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart()
+    {
+      var data = google.visualization.arrayToDataTable(
+      [
+        ['Hour', 'Humidity (%)'],
+        ['12:00',  90  ],
+        ['12:30',  80  ],
+        ['13:00',  75.5   ],
+        ['13:30',  94.5  ]   
+      ]
+      );
+
+      var options = {
+        title: 'Humidity Curve',
+        curveType: 'function',
+        legend: { position: 'bottom' },
+        colors: ['#0000ff']
+        
+      };
+
+      var chart = new google.visualization.LineChart(document.getElementById('humidity_curve'));
+
+      chart.draw(data, options);
+    }
+  </script>
+    
+</head>
+
+<body>
+    <div class="container vb">
+        <div class="row d-flex justify-content-between">   <!-- navbar row -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light vb">
+                <a class="navbar-brand">__freegarden__</a>
+              
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="/index.html">Home<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="/about.html">About</a>
+                    </li>
+                  </ul>
+                </div>
+            </nav>
+        </div>
+        
+        
+        <div class="row"> <!-- content row-->
+
+                <!-- report & settings-->
+            <div class="col-sm-5 p-3 vb">
+                    <!-- greeting -->
+                <h4>Hello!</h2>
+                <hr>
+                    <!-- info about the grow -->
+                <h5>Grow report</h5>
+                <p>You are on day %d of growing %s. The plant is %s.</p>
+                <p>Temperature: %d °C (optimal is: %d °C)</p>
+                <p>Humidity: %d %% (optimal is: %d %%)</p>
+                
+                    <!-- settings user can change -->
+                <h5>Settings</h5>
+
+                    <!-- settings box -->
+                <div class="col">
+
+                    <form action="/index.html" method="get">
+
+                        <div class="input-group mb-3">
+                            <label for="optimal_temperature">Temperature: </label>
+                            <input name="optimal_temperature" id="optimal_temperature" type="number" class="form-control" placeholder="Enter desired temperature" aria-label="optimal temperature" aria-describedby="celsius-addon" min="0" max="60"> <!-- FIXME: reasonable range -->
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="celsius-addon">°C</span>
+                            </div>
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <label for="optimal_humidity">Humidity: </label>
+                            <input name="optimal_humidity" id="optimal_humidity" type="number" class="form-control" placeholder="Enter desired humidity" aria-label="optimal humidity" aria-describedby="percent-addon" min="0" max="100"> <!-- FIXME: humidity = 0%% is impossible-->
+                            <div class="input-group-append">
+                                <span class="input-group-text" id="percent-addon">%%</span>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Update settings</button>
+
+                    </form>
+                </div>
+            </div>
+
+                <!-- graphs -->
+            <div class="col-sm-7 vb">
+                <div class="col-md">
+                    <div id="humidity_curve" style="width: 600px; height: 300px"></div>
+                </div>
+
+                <div class="col-md">
+                    <div id="temperature_curve" style="width: 600px; height: 300px"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+        <!-- web bootstrap scripts-->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+</body>
