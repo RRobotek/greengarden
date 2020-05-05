@@ -1,7 +1,7 @@
 #include "tables.h"
 
 #include "defines.h"
-#include "sensors.h"
+#include "grow.h"
 
 #include <esp_heap_caps.h>
 #include <WiFi.h>
@@ -15,35 +15,39 @@ uint8_t temperatures_array  [TABLE_WIDTH];
 uint8_t humidities_array    [TABLE_WIDTH];
 uint8_t times_array         [TABLE_WIDTH];
 
-/*
-  initializes tables by allocating memory and first time count (in minutes !!!!!)
-*/
+/**
+ * @brief initializes tables by allocating memory and first time count (in hours !!!!!)
+ * 
+ */
 void init_tables()
 {
     temperatures_table  = (char*)heap_caps_malloc(TABLE_ALLOC_SIZE, MALLOC_CAP_8BIT);
     humidities_table    = (char*)heap_caps_malloc(TABLE_ALLOC_SIZE, MALLOC_CAP_8BIT);
 
-    times_array[TABLE_WIDTH-1] = timeinfo.tm_min;
+    times_array[TABLE_WIDTH-1] = eeprom_data.plant_time_now.tm_hour;
 }
 
-/*
-  uninits tables by freeing the allocated memory
-*/
+/**
+ * @brief uninits tables by freeing the allocated memory
+ * 
+ */
 void uninit_tables()
 {
     heap_caps_free(temperatures_table);
     heap_caps_free(humidities_table);
 }
 
-/*
-  parses table into readable by google charts form
-  (https://www.wikihow.com/Make-a-Table)
-*/
+
+/**
+ * @brief parses table into readable by google charts form
+ *        (https://www.wikihow.com/Make-a-Table)
+ * 
+ */
 void make_tables()
 {
-  getLocalTime(&timeinfo);
+  getLocalTime(&eeprom_data.plant_time_now);
   
-  if((timeinfo.tm_min > times_array[TABLE_WIDTH-1]) || ((times_array[TABLE_WIDTH-1] == 59) && (timeinfo.tm_min == 0)))
+  if((eeprom_data.plant_time_now.tm_hour > times_array[TABLE_WIDTH-1]) || ((times_array[TABLE_WIDTH-1] == 23) && (eeprom_data.plant_time_now.tm_hour == 0)))
   {
     for(uint8_t i=0; i < TABLE_WIDTH-1; i++)
     {
@@ -52,9 +56,9 @@ void make_tables()
       humidities_array[i] = humidities_array[i+1];
     }
 
-    times_array[TABLE_WIDTH-1]          = timeinfo.tm_min;
-    temperatures_array[TABLE_WIDTH-1]   = get_temperature();
-    humidities_array[TABLE_WIDTH-1]     = get_humidity();
+    times_array[TABLE_WIDTH-1]          = eeprom_data.plant_time_now.tm_hour;
+    temperatures_array[TABLE_WIDTH-1]   = eeprom_data.plant_temperature_current;
+    humidities_array[TABLE_WIDTH-1]     = eeprom_data.plant_humidity_current;
   }
 
   sprintf(temperatures_table, TABLE_TEMPLATE, times_array[0], temperatures_array[0],
